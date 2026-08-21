@@ -12,10 +12,13 @@ let
   source = lib.importJSON ./sources.json;
 in
 v2ray-domain-list-community.override {
-  # rev 和 tag 上游只会给其中一个，两个同时传给 fetchFromGitHub 会报错
   fetchFromGitHub =
     args:
-    fetchFromGitHub (removeAttrs args [ "rev" "tag" ] // { rev = source.version; inherit (source) hash; });
+    fetchFromGitHub (
+      args
+      // (if args ? tag then { tag = source.version; } else { rev = source.version; })
+      // { inherit (source) hash; }
+    );
 
   pkgsBuildBuild = pkgsBuildBuild // {
     buildGoModule = args: pkgsBuildBuild.buildGoModule (args // { inherit (source) version vendorHash; });

@@ -17,7 +17,11 @@ v2ray-geoip.override {
 
   fetchFromGitHub =
     args:
-    fetchFromGitHub (removeAttrs args [ "rev" "tag" ] // { rev = source.version; inherit (source) hash; });
+    fetchFromGitHub (
+      args
+      // (if args ? tag then { tag = source.version; } else { rev = source.version; })
+      // { inherit (source) hash; }
+    );
 
   pkgsBuildBuild = pkgsBuildBuild // {
     buildGoModule = args: pkgsBuildBuild.buildGoModule (args // { inherit (source) version vendorHash; });
